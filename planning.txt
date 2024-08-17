@@ -1,0 +1,27 @@
+class TodoItem
+	title
+	description
+	dueDate
+	priority
+	isFinished = false
+	get()
+	set()
+	toggleComplete()
+	
+
+class Projects
+	title get() set()
+	todos get()
+	addTodoItem()
+	deleteTodoItem()
+	toggleTodoItem()
+	
+
+logic folder
+	todos.js
+	project.js
+
+dom folder
+	todos.js
+	index.js
+	project.js
