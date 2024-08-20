@@ -72,7 +72,6 @@ function todoInfo(todo) {
     let todoItemTextDOM = document.createElement("div");
     todoItemTextDOM.textContent = todo.toString();
 
-
     // Checkbox
     const todoItemCheckboxDOM = document.createElement("input");
     todoItemCheckboxDOM.type = "checkbox";

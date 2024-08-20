@@ -11,6 +11,10 @@ export default class Project {
     static removeProject(project) {
         Project.projectList = Project.projectList.filter((item) => item!== project);
     }
+
+    static removeProject(index) {
+        Project.projectList.splice(index, 1);
+    }
     
     addTodo(todoItem) {
         if (todoItem instanceof TodoItem) {

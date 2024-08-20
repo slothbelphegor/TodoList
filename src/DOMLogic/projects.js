@@ -18,6 +18,7 @@ function projectInfoDOM(project) {
     // Create a new div element for project info
     const projectInfoDOM = document.createElement("div");
     projectInfoDOM.classList.add("project-info");
+    
 
     // The toolbar of each project
     const projectInfoToolsDOM = document.createElement("div");
@@ -121,10 +122,16 @@ function newProjectFormDOM() {
     return newProjectFormDOM;
 }
 
+function removeProjectFormDOM(selectedProjectID) {
+    Project.removeProject(selectedProjectID);
+    
+}
+
 
 
 export {
     newProjectFormDOM,
     projectInfoDOM,
+    removeProjectFormDOM,
     projectList
 }

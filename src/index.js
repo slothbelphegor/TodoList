@@ -1,5 +1,5 @@
 
-import { projectInfoDOM, projectList, newProjectFormDOM } from './DOMLogic/projects.js';
+import { projectInfoDOM, projectList, newProjectFormDOM, removeProjectFormDOM } from './DOMLogic/projects.js';
 import './style.css';
 
 // header
@@ -20,23 +20,29 @@ document.body.appendChild(mainContentDOM);
 
 
 // sidebar - add project button
-const addProjectDOM = document.createElement("div");
-addProjectDOM.classList.add("project-add");
+const projectToolsDOM = document.createElement("div");
+projectToolsDOM.classList.add("project-tools");
 const addProjectBtnDOM = document.createElement("button");
 addProjectBtnDOM.classList.add("btn");
 addProjectBtnDOM.classList.add("btn-add-project");
 addProjectBtnDOM.textContent = "+ New Project";
-addProjectDOM.appendChild(addProjectBtnDOM);
+projectToolsDOM.appendChild(addProjectBtnDOM);
 
 // sidebar - remove project button
-
 const removeProjectDOM = document.createElement("div");
 removeProjectDOM.classList.add("project-remove");
 const removeProjectBtnDOM = document.createElement("button");
 removeProjectBtnDOM.classList.add("btn");
 removeProjectBtnDOM.classList.add("btn-remove-project");
+removeProjectBtnDOM.textContent = "- Remove Project";
+// remove button only appears when a project is selected
+projectToolsDOM.appendChild(removeProjectBtnDOM);
+
+
 
 let projectListDOM = document.createElement("div");
+
+// Listener for add project button
 addProjectBtnDOM.addEventListener("click", () => {
     // Create a form for the new project
     const projectFormDOM = newProjectFormDOM();
@@ -50,20 +56,43 @@ addProjectBtnDOM.addEventListener("click", () => {
         projectListDOM = renderProjectList(projectList);
         projectListDOM.classList.add("project-list");
         sidebarDOM.appendChild(projectListDOM);
-        addProjectDOM.removeChild(projectFormDOM);
+        projectToolsDOM.removeChild(projectFormDOM);
         // Enable the add project button
-        addProjectBtnDOM.style.pointerEvents = "auto";  
+        addProjectBtnDOM.style.pointerEvents = "auto";
     });
 
     // Append the form to the sidebar 
-    addProjectDOM.appendChild(projectFormDOM);
+    projectToolsDOM.appendChild(projectFormDOM);
 
     // Disable the add project button until the form is submitted
-    addProjectBtnDOM.style.pointerEvents = "none";  
+    addProjectBtnDOM.style.pointerEvents = "none";
 
 
 });
-sidebarDOM.appendChild(addProjectDOM);
+
+// Listener for the remove project button  
+removeProjectBtnDOM.addEventListener("click", () => {
+    // Remove selected project
+    const selectedProjectDOM = document.querySelector(".project-selected");
+    if (selectedProjectDOM !== null) {
+        const selectedProjectID = selectedProjectDOM.getAttribute("id");
+        if (confirm("Delete selected project?") == true) {
+            removeProjectFormDOM(selectedProjectID);
+        }
+        
+        // Re-render the project list
+        projectListDOM.innerHTML = "";
+        sidebarDOM.removeChild(projectListDOM);
+        projectListDOM = renderProjectList(projectList);
+        projectListDOM.classList.add("project-list");
+        sidebarDOM.appendChild(projectListDOM);
+    }
+    else {
+        alert("No project selected.");
+    }
+});
+
+sidebarDOM.appendChild(projectToolsDOM);
 
 // sidebar - project list
 projectListDOM = renderProjectList(projectList);
@@ -73,14 +102,17 @@ document.body.appendChild(sidebarDOM);
 
 function renderProjectList(projectList) {
     const projectListDOM = document.createElement("div");
+    let index = 0;
     projectList.forEach((p) => {
         const projectDOM = document.createElement("div");
         projectDOM.classList.add("project");
-
+        // ID for removing project
+        projectDOM.setAttribute("id", index);
+        index++;
+        // Project name appears in sidebar
         const projectNameDOM = document.createElement("h3");
         projectDOM.classList.add("project-name");
         projectNameDOM.textContent = p.name;
-
         // Enable active state of project
         projectDOM.addEventListener("click", () => {
             const projectListDOM = document.querySelectorAll(".project");
