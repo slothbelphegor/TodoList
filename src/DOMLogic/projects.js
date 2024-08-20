@@ -1,5 +1,6 @@
 import Project from '../logic/projects.js';
 import TodoItem from '../logic/todos.js';
+import DeleteIcon from '../icons/delete.svg'
 import { newTodoForm, todoInfo, todoInfoDetailsForm } from './todos.js'
 
 
@@ -32,9 +33,11 @@ function projectInfoDOM(project) {
         // Add new todo item info
         form.addEventListener("submit", () => {
             const newTodoItemDOM = todoInfo(project.todos[project.todos.length - 1]);
+            newTodoItemDOM.classList.add("todo-item");
             // Remove todo item button
-            const removeTodoBtnDOM = document.createElement("button");
-            removeTodoBtnDOM.textContent = "Remove";
+            const removeTodoBtnDOM = document.createElement("img");
+            removeTodoBtnDOM.src = DeleteIcon;
+            removeTodoBtnDOM.classList.add("btn-todo-remove");
             removeTodoBtnDOM.addEventListener("click", () => {
                 project.removeTodo(todo);
                 todoListDOM.removeChild(newTodoItemDOM);
@@ -59,8 +62,11 @@ function projectInfoDOM(project) {
             const todoItemDOM = todoInfo(todo);
             todoItemDOM.classList.add("todo-item");
             // Remove todo item button
-            const removeTodoBtnDOM = document.createElement("button");
-            removeTodoBtnDOM.textContent = "Remove";
+            // const removeTodoBtnDOM = document.createElement("button");
+            // removeTodoBtnDOM.textContent = "Remove";
+            const removeTodoBtnDOM = document.createElement("img");
+            removeTodoBtnDOM.src = DeleteIcon;
+            removeTodoBtnDOM.classList.add("btn-todo-remove");
             removeTodoBtnDOM.addEventListener("click", () => {
                 project.removeTodo(todo);
                 todoListDOM.removeChild(todoItemDOM);

@@ -44,11 +44,8 @@ export default class TodoItem {
         return this._priority;
     }
     set priority(value) {
-        if (typeof value === 'number' && value >= 1 && value <= 3) {
             this._priority = value;
-        } else {
-            throw new Error('Priority must be a number between 1 and 3.');
-        }
+        
     }
 
     toggleCompletion() {
@@ -56,7 +53,7 @@ export default class TodoItem {
     }
 
     toString() {
-        return `${this.title} - Due Date: ${this.dueDate.toDateString()}, Priority ${this.priority}, Status: ${this.isDone? "Completed" : "Incomplete"}`
+        return `${this.title} - Due Date: ${this.dueDate}, Priority ${this.priority}, Status: ${this.isDone? "Completed" : "Incomplete"}`
     }
 
 }
