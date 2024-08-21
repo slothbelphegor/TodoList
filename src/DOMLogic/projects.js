@@ -45,7 +45,6 @@ function projectInfoDOM(project) {
             projectInfoDOM.removeChild(form);
             newTodoItemDOM.appendChild(removeTodoBtnDOM);
             todoListDOM.appendChild(newTodoItemDOM);
-
         });
         projectInfoDOM.appendChild(form);
 
