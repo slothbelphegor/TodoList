@@ -231,7 +231,7 @@ ul {
 .todo-item {
   display: grid;
   grid-template-columns: 1fr 5fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 1.5em 1em auto;
   align-items: center;
   gap: 5px;
 }
@@ -253,6 +253,27 @@ ul {
   flex-direction: row;
   gap: 0.5em;
 }
+
+.todo-item-description {
+  grid-column: 2 / 3;
+  grid-row: 3 / 4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  resize: none;
+  padding: 5px;
+  border-radius: 5px;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  margin-bottom: 0.5em;
+  color: #333;
+  pointer-events: none;
+  border-color: #dedede;
+}
+
 
 .priority-none {
   background-color: #555;
@@ -312,14 +333,15 @@ ul {
   cursor: pointer;
 }
 
-.btn-todo-edit, .btn-todo-remove {
+.btn-todo-edit,
+.btn-todo-remove {
   background-color: transparent;
   border: none;
   outline: none;
   cursor: pointer;
   height: 1.4em;
   width: 1.4em;
-  color:#93c3f7
+  color: #93c3f7
 }
 
 .btn-todo-remove {

@@ -8,7 +8,7 @@ const projectList = Project.projectList;
 const project = new Project("Default Project");
 project.addTodo(new TodoItem());
 const project2 = new Project("Housework");
-project2.addTodo(new TodoItem("Sweeping", "Clean up the floor", new Date(), 1));
+project2.addTodo(new TodoItem("Sweeping", "Clean up the floor\nGet rid of trash\nWait for trash takeaway\nDone!", new Date(), 1));
 const todo = project.getTodo(0);
 todo.toggleCompletion();
 

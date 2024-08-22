@@ -10,6 +10,8 @@ function todoInfoDetailsForm(todo) {
     const todoNameInput = document.createElement('input');
     todoNameInput.setAttribute('type', 'text');
     todoNameInput.setAttribute('name', 'todoName');
+    todoNameInput.setAttribute('required', '');
+    todoNameInput.classList.add('todo-item-name');
     todoNameInput.value = todo.title;
     const todoNameInputLabel = document.createElement('label');
     todoNameInputLabel.textContent = 'Task Name: ';
@@ -34,13 +36,14 @@ function todoInfoDetailsForm(todo) {
     // priorityInput.setAttribute('max', '3');
     // priorityInput.value = todo.priority;
     const priorityInput = document.createElement('select');
-    const priorityOptions = [('0',"None"),('1',"Needed"), ('2', "Important"), ('3', "Urgent")].map((priorityText, priorityValue) => {
+    const priorityOptions = [('0', "None"), ('1', "Needed"), ('2', "Important"), ('3', "Urgent")].map((priorityText, priorityValue) => {
         const option = document.createElement('option');
         option.textContent = priorityText;
         option.value = priorityValue;
         return option;
     });
     priorityInput.append(...priorityOptions);
+    priorityInput.value = todo.priority;
 
     priorityInput.setAttribute('name', 'todoPriority');
     const priorityInputLabel = document.createElement('label');
@@ -49,10 +52,21 @@ function todoInfoDetailsForm(todo) {
     form.appendChild(priorityInputLabel);
     form.appendChild(priorityInput);
 
+    // Convert Date object to datetime-local format
+    const convertToDateTimeLocalString = (date) => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const day = date.getDate().toString().padStart(2, "0");
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
     // Due date input
     const dueDateInput = document.createElement('input');
     dueDateInput.setAttribute('type', 'datetime-local');
-    dueDateInput.value = todo.dueDate.toISOString().split('T')[0];
+    dueDateInput.value = convertToDateTimeLocalString(todo.dueDate);
     dueDateInput.setAttribute('name', 'todoDueDate');
     const dueDateInputLabel = document.createElement('label');
     dueDateInputLabel.textContent = 'Due Date: ';
@@ -72,8 +86,6 @@ function todoInfoDetailsForm(todo) {
     });
     form.appendChild(submitButton);
 
-
-
     return form;
 
 }
@@ -87,43 +99,51 @@ function todoInfo(todo) {
     todoItemNameDOM.textContent = todo.title;
     todoItemNameDOM.classList.add("todo-item-name");
 
+
     // Priority
     let todoItemPriorityDOM = document.createElement("div");
     todoItemPriorityDOM.classList.add("todo-item-priority");
-    let todoItemPriorityIconDOM = document.createElement("div");
-    todoItemPriorityIconDOM.classList.add("todo-item-priority-icon");
-    let todoItemPriorityTextDOM = document.createElement("div");
-    todoItemPriorityTextDOM.classList.add("todo-item-priority-text");
 
-    switch (todo.priority) {
-        case 0:
-            todoItemPriorityIconDOM.classList.add("priority-none");
-            todoItemPriorityTextDOM.textContent = "None";
-            break;
-        case 1:
-            todoItemPriorityIconDOM.classList.add("priority-needed");
-            todoItemPriorityTextDOM.textContent = "Needed";
-            break;
-        case 2:
-            todoItemPriorityIconDOM.classList.add("priority-important");
-            todoItemPriorityTextDOM.textContent = "Important";
-            break;
-        case 3:
-            todoItemPriorityIconDOM.classList.add("priority-urgent");
-            todoItemPriorityTextDOM.textContent = "Urgent";
-            break;
+    function displayPriority(priority) {
+        let todoItemPriorityIconDOM = document.createElement("div");
+        todoItemPriorityIconDOM.classList.add("todo-item-priority-icon");
+        let todoItemPriorityTextDOM = document.createElement("div");
+        todoItemPriorityTextDOM.classList.add("todo-item-priority-text");
+
+        switch (priority) {
+            case 0:
+                todoItemPriorityIconDOM.classList.add("priority-none");
+                todoItemPriorityTextDOM.textContent = "None";
+                break;
+            case 1:
+                todoItemPriorityIconDOM.classList.add("priority-needed");
+                todoItemPriorityTextDOM.textContent = "Needed";
+                break;
+            case 2:
+                todoItemPriorityIconDOM.classList.add("priority-important");
+                todoItemPriorityTextDOM.textContent = "Important";
+                break;
+            case 3:
+                todoItemPriorityIconDOM.classList.add("priority-urgent");
+                todoItemPriorityTextDOM.textContent = "Urgent";
+                break;
+        }
+
+        todoItemPriorityDOM.appendChild(todoItemPriorityIconDOM);
+        todoItemPriorityDOM.appendChild(todoItemPriorityTextDOM);
     }
+    displayPriority(todo.priority);
+    
 
-    todoItemPriorityDOM.appendChild(todoItemPriorityIconDOM);
-    todoItemPriorityDOM.appendChild(todoItemPriorityTextDOM);
     // Due time
     let todoItemDueDOM = document.createElement("div");
     todoItemDueDOM.classList.add("todo-item-due");
 
+    // Date
     let todoItemDueDateDOM = document.createElement("div");
     todoItemDueDateDOM.textContent = `${todo.dueDate.toISOString().split('T')[0]}`;
     todoItemDueDateDOM.classList.add("todo-item-due-date");
-
+    // Time
     let todoItemDueTimeDOM = document.createElement("div");
     todoItemDueTimeDOM.textContent = todo.dueDate.toLocaleTimeString();
     todoItemDueTimeDOM.classList.add("todo-item-due-time");
@@ -140,17 +160,41 @@ function todoInfo(todo) {
         todo.toggleCompletion();
     });
 
+    // Description
+    function adjustTextareaHeight(textarea) {
+        textarea.style.height = 'auto'; // Reset height
+        textarea.style.height = textarea.scrollHeight + 'px'; // Set height to scrollHeight
+      }
+    let todoItemDescriptionDOM = document.createElement("textarea");
+    todoItemDescriptionDOM.textContent = todo.description;
+    adjustTextareaHeight(todoItemDescriptionDOM);
+    todoItemDescriptionDOM.addEventListener("input", () => {
+        adjustTextareaHeight(todoItemDescriptionDOM);
+    });
 
+    todoItemDescriptionDOM.classList.add("todo-item-description");
+    todoItemDescriptionDOM.style.display = "none";
+
+
+    // Add elements to the todo item
     todoItemDOM.appendChild(todoItemCheckboxDOM);
     todoItemDOM.appendChild(todoItemNameDOM);
     todoItemDOM.appendChild(todoItemPriorityDOM);
     todoItemDOM.appendChild(todoItemDueDOM);
+    todoItemDOM.appendChild(todoItemDescriptionDOM);
 
-    const todoItemEditBtn = document.createElement("img"); 
+    // Show description on clicking the todo item name
+    todoItemNameDOM.addEventListener("click", () => {
+        todoItemDescriptionDOM.style.display = todoItemDescriptionDOM.style.display === "none"? "block" : "none";
+        adjustTextareaHeight(todoItemDescriptionDOM);
+    });
+
+    // Edit button
+    const todoItemEditBtn = document.createElement("img");
     todoItemEditBtn.src = EditIcon;
     todoItemEditBtn.classList.add("btn-todo-edit");
     todoItemDOM.appendChild(todoItemEditBtn);
-    
+
     // Edit todo item on click on edit button
     todoItemEditBtn.addEventListener("click", () => {
         if (todoItemEditBtn.classList.contains("editing") == false) {
@@ -159,17 +203,19 @@ function todoInfo(todo) {
             todoItemEditBtn.classList.toggle("editing");
             todoInfoForm.addEventListener("submit", (e) => {
                 todoItemDOM.removeChild(todoInfoForm);
+                // Renew the item details on submit
                 todoItemNameDOM.textContent = todo.title;
-                todoItemPriorityDOM.textContent = `Priority: ${todo.priority}`;
+                todoItemPriorityDOM.innerHTML = "";
+                displayPriority(todo.priority);
                 todoItemDueDateDOM.textContent = `${todo.dueDate.toISOString().split('T')[0]}`;
                 todoItemDueTimeDOM.textContent = todo.dueDate.toLocaleTimeString();
+                todoItemDescriptionDOM.textContent = todo.description;
                 // Disable edit mode
                 todoItemEditBtn.classList.toggle("editing");
             });
-
             todoItemDOM.appendChild(todoInfoForm);
         }
-       
+
     });
     return todoItemDOM;
 }
@@ -204,7 +250,7 @@ function newTodoForm(project) {
 
     // Priority input
     const priorityInput = document.createElement('select');
-    const priorityOptions = [('0',"None"),('1',"Needed"), ('2', "Important"), ('3', "Urgent")].map((priorityText, priorityValue) => {
+    const priorityOptions = [('0', "None"), ('1', "Needed"), ('2', "Important"), ('3', "Urgent")].map((priorityText, priorityValue) => {
         const option = document.createElement('option');
         option.textContent = priorityText;
         option.value = priorityValue;
@@ -232,7 +278,7 @@ function newTodoForm(project) {
 
     // Submit button
     const submitButton = document.createElement('input');
-    submitButton.type ='submit';
+    submitButton.type = 'submit';
     submitButton.value = 'Add Task';
     submitButton.addEventListener('click', function () {
         const todoName = todoNameInput.value;
