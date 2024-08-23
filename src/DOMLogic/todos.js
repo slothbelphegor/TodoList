@@ -17,7 +17,7 @@ function displayDescription(todoItemDescriptionDOM, editingState) {
         todoItemDescriptionDOM.style.pointerEvents = "none";
 }
 
-// Some extra info for the deadline
+// Some extra info for the due date
 function dueDateExtraInfo(todoItemDueDateDOM, todoItemDueTimeDOM, dueDate) {
     const todayDateString = format(new Date(), "PPPP")
     const todoItemDueDateExtraText = formatDistanceToNow(dueDate, { addSuffix: true });
@@ -32,8 +32,19 @@ function dueDateExtraInfo(todoItemDueDateDOM, todoItemDueTimeDOM, dueDate) {
     }
 }
 
+// Handle clicking event of the todo name
+function handleTodoNameInputClick(todoDescriptionInput, editingState, dueDateDOM, dueDate) {
+    displayDescription(todoDescriptionInput, editingState);
+    dueDateDOM.classList.toggle("dueDateDetails");
+
+    // Show due date details if in detail mode
+    const isInDetailsMode = dueDateDOM.classList.contains("dueDateDetails");
+    displayDueDateDetails(dueDateDOM, isInDetailsMode, dueDate);
+}
+
 function displayDueDateDetails(todoItemDueDOM, isInDetailsMode, dueDate) {
     if (isInDetailsMode) {
+        // Due date is now splitted into two parts, date and time
         todoItemDueDOM.textContent = "";
         // Date
         let todoItemDueDateDOM = document.createElement("div");
@@ -51,6 +62,7 @@ function displayDueDateDetails(todoItemDueDOM, isInDetailsMode, dueDate) {
         
     }
     else {
+        // Only show time remaining, not detailed information
         todoItemDueDOM.innerHTML = '';
         todoItemDueDOM.textContent = formatDistanceToNow(dueDate, { addSuffix: true });
     }
@@ -61,17 +73,14 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
     const form = document.createElement('form');
 
     // Input field for task name
-    //const todoNameInput = document.createElement('input');
     const todoNameInput = todoItemDOM.querySelector(".todo-item-name");
     const todoNameInputNew = document.createElement('input');
     todoNameInputNew.setAttribute('type', 'text');
     todoNameInputNew.setAttribute('name', 'todoName');
     todoNameInputNew.setAttribute('required', '');
     todoNameInputNew.value = todo.title;
-    //todoNameInput.removeAttribute("readonly");
     todoNameInputNew.classList.add('todo-item-name');
     todoNameInput.replaceWith(todoNameInputNew);
-
 
     // Input field for task description
     const todoDescriptionInput = todoItemDOM.querySelector(".todo-item-description");
@@ -115,7 +124,7 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
     // Due date input
     const dueDateInput = document.createElement('input');
     dueDateInput.setAttribute('type', 'datetime-local');
-    dueDateInput.value = convertToDateTimeLocalString(todo.dueDate);
+    dueDateInput.value = convertToDateTimeLocalString(todo.dueDate); // convert to datetime-local string
     dueDateInput.setAttribute('name', 'todoDueDate');
 
     // Hide the due date info
@@ -143,12 +152,9 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
         // Enable listeners for todo name
         const btnEditTodoDOM = todoItemDOM.querySelector('.btn-todo-edit');
         const editingState = btnEditTodoDOM.classList.contains("editing");
+        
         todoNameInputNew.addEventListener('click', (event) => { 
-            displayDescription(todoDescriptionInput, editingState) 
-            dueDateDOM.classList.toggle("dueDateDetails");
-             // Show due date details if in detail mode
-             const isInDetailsMode = dueDateDOM.classList.contains("dueDateDetails");
-             displayDueDateDetails(dueDateDOM, isInDetailsMode, todo.dueDate);
+            handleTodoNameInputClick(todoDescriptionInput, editingState,dueDateDOM,todo.dueDate);
         });
 
         // Enable details due date mode
@@ -179,12 +185,9 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
         // Enable listeners for todo name
         const btnEditTodoDOM = todoItemDOM.querySelector('.btn-todo-edit');
         const editingState = btnEditTodoDOM.classList.contains("editing");
+        
         todoNameInputNew.addEventListener('click', (event) => { 
-            displayDescription(todoDescriptionInput, editingState) 
-             // Show due date details if in detail mode
-             dueDateDOM.classList.toggle("dueDateDetails");
-            const isInDetailsMode = dueDateDOM.classList.contains("dueDateDetails");
-            displayDueDateDetails(dueDateDOM, isInDetailsMode, todo.dueDate);
+            handleTodoNameInputClick(todoDescriptionInput, editingState,dueDateDOM,todo.dueDate);
         });
 
         // Enable details due date mode
@@ -264,26 +267,6 @@ function todoInfo(todo) {
     todoItemDueDOM.classList.add("todo-item-due");
     todoItemDueDOM.textContent = formatDistanceToNow(todo.dueDate, { addSuffix: true });
 
-    
-
-    // // Date
-    // let todoItemDueDateDOM = document.createElement("div");
-    // todoItemDueDateDOM.textContent = format(todo.dueDate, 'PPPP');
-    // todoItemDueDateDOM.classList.add("todo-item-due-date");
-
-
-    // // Time
-    // let todoItemDueTimeDOM = document.createElement("div");
-    // todoItemDueTimeDOM.textContent = format(todo.dueDate, "p");
-    // todoItemDueTimeDOM.classList.add("todo-item-due-time");
-
-    
-    // dueDateExtraInfo(todoItemDueDateDOM, todoItemDueTimeDOM);
-    // todoItemDueDOM.appendChild(todoItemDueDateDOM);
-    // todoItemDueDOM.appendChild(todoItemDueTimeDOM);
-
-    
-
 
     // Checkbox
     const todoItemCheckboxDOM = document.createElement("input");
@@ -334,15 +317,18 @@ function todoInfo(todo) {
                 e.preventDefault();
                 todoItemDOM.removeChild(todoInfoForm);
                 // Renew the item details on submit
+                // Todo name
                 todoItemNameDOM.textContent = todo.title;
                 todoItemNameDOM.setAttribute("readonly", '');
 
-
+                // Due date
                 displayDueDateDetails(todoItemDueDOM, todoItemDueDOM.classList.contains("dueDateDetails"), todo.dueDate);
 
+                // Priority
                 todoItemPriorityDOM.innerHTML = "";
                 displayPriority(todo.priority);
 
+                // Description
                 todoItemDescriptionDOM.textContent = todo.description;
                 // Disable edit mode
                 todoItemEditBtn.classList.toggle("editing");
@@ -355,13 +341,7 @@ function todoInfo(todo) {
     // Show description on clicking the todo item name
     const editingState = todoItemEditBtn.classList.contains("editing");
     todoItemNameDOM.addEventListener('click', (event) => { 
-        displayDescription(todoItemDescriptionDOM, editingState) 
-        // Toggle detail due date mode
-        todoItemDueDOM.classList.toggle("dueDateDetails");
-        // Show due date details if in detail mode
-        const isInDetailsMode = todoItemDueDOM.classList.contains("dueDateDetails");
-        displayDueDateDetails(todoItemDueDOM, isInDetailsMode, todo.dueDate);
-        
+        handleTodoNameInputClick(todoItemDescriptionDOM, editingState,todoItemDueDOM,todo.dueDate);
     });
     
 
@@ -409,6 +389,7 @@ function newTodoForm(project) {
     const priorityInputLabel = document.createElement('label');
     priorityInputLabel.textContent = 'Priority: ';
     priorityInputLabel.setAttribute('for', 'todoPriority');
+
     form.appendChild(priorityInputLabel);
     form.appendChild(priorityInput);
 
@@ -420,16 +401,14 @@ function newTodoForm(project) {
     // Set default value (e.g., current date and time)
     const currentDate = new Date().toISOString().slice(0, 16);
     dueDateInput.setAttribute('value', currentDate);
-
     // Set minimum value (e.g., today's date and time)
     const minDate = new Date().toISOString().slice(0, 16);
     dueDateInput.setAttribute('min', minDate);
-
     dueDateInput.setAttribute('required', true); // Adding the 'required' attribute for HTML5 form validation
-
     const dueDateInputLabel = document.createElement('label');
     dueDateInputLabel.textContent = 'Due Date: ';
     dueDateInputLabel.setAttribute('for', 'todoDueDate');
+
     form.appendChild(dueDateInputLabel);
     form.appendChild(dueDateInput);
 
@@ -454,16 +433,7 @@ function newTodoForm(project) {
             const todoDueDate = new Date(dueDateInput.value);
             const todoPriority = parseInt(priorityInput.value);
             const newTodo = new TodoItem(todoName, todoDescription, todoDueDate, todoPriority);
-
-
             project.addTodo(newTodo);
-            // if (project.addTodo(newTodo)) {
-            //     // Clear form inputs
-            //     todoNameInput.value = '';
-            //     todoDescriptionInput.value = '';
-            //     dueDateInput.value = '';
-            //     priorityInput.value = '';
-            // }
         }
 
     });
