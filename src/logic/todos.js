@@ -13,9 +13,7 @@ export default class TodoItem {
     set title(value) { 
         if (typeof value ==='string' && value.trim()!== '') {
             this._title = value;
-        } else {
-            throw new Error('Title must be a non-empty string.');
-        }
+        } 
     }
 
     get description() {
@@ -24,9 +22,7 @@ export default class TodoItem {
     set description(value) {
         if (typeof value ==='string' && value.trim()!== '') {
             this._description = value;
-        } else {
-            throw new Error('Description must be a non-empty string.');
-        }
+        } 
     }
 
     get dueDate() {
@@ -35,9 +31,7 @@ export default class TodoItem {
     set dueDate(value) {
         if (value instanceof Date &&!isNaN(value)) {
             this._dueDate = value;
-        } else {
-            throw new Error('Due date must be a valid date.');
-        }
+        } 
     }
 
     get priority() {

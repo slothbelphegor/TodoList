@@ -95,7 +95,7 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
     submitButton.addEventListener('click', function () {
         todo.title = todoNameInputNew.value;
         todoNameInputNew.setAttribute('readonly', '');
-        
+
         todo.description = todoDescriptionInput.value;
         todoDescriptionInput.style.pointerEvents = 'none';
         todo.dueDate = new Date(dueDateInput.value);
@@ -301,6 +301,7 @@ function newTodoForm(project) {
     const todoNameInput = document.createElement('input');
     todoNameInput.setAttribute('type', 'text');
     todoNameInput.setAttribute('name', 'todoName');
+    todoNameInput.setAttribute('required', '');
     todoNameInput.setAttribute('placeholder', 'New task name');
     const todoNameInputLabel = document.createElement('label');
     todoNameInputLabel.textContent = 'Task Name: ';
@@ -338,6 +339,16 @@ function newTodoForm(project) {
     dueDateInput.setAttribute('type', 'datetime-local');
     dueDateInput.setAttribute('placeholder', 'Due date');
     dueDateInput.setAttribute('name', 'todoDueDate');
+    // Set default value (e.g., current date and time)
+    const currentDate = new Date().toISOString().slice(0, 16);
+    dueDateInput.setAttribute('value', currentDate);
+
+    // Set minimum value (e.g., today's date and time)
+    const minDate = new Date().toISOString().slice(0, 16);
+    dueDateInput.setAttribute('min', minDate);
+
+    dueDateInput.setAttribute('required', true); // Adding the 'required' attribute for HTML5 form validation
+
     const dueDateInputLabel = document.createElement('label');
     dueDateInputLabel.textContent = 'Due Date: ';
     dueDateInputLabel.setAttribute('for', 'todoDueDate');
@@ -350,22 +361,33 @@ function newTodoForm(project) {
     const submitButton = document.createElement('input');
     submitButton.type = 'submit';
     submitButton.value = 'Add Task';
-    submitButton.addEventListener('click', function () {
-        const todoName = todoNameInput.value;
-        const todoDescription = todoDescriptionInput.value;
-        const todoDueDate = new Date(dueDateInput.value);
-        const todoPriority = parseInt(priorityInput.value);
-        const newTodo = new TodoItem(todoName, todoDescription, todoDueDate, todoPriority);
-
-        if (project.addTodo(newTodo)) {
-            // Clear form inputs
-            todoNameInput.value = '';
-            todoDescriptionInput.value = '';
-            dueDateInput.value = '';
-            priorityInput.value = '';
-
-            alert("Tasks added successfully");
+    submitButton.addEventListener('click', function (e) {
+        if (!todoNameInput.value) {
+            alert('Task name is required');
+            e.preventDefault();
         }
+        else if (!dueDateInput.value) {
+            alert('Due date is required');
+            e.preventDefault();
+        }
+        else {
+            const todoName = todoNameInput.value;
+            const todoDescription = todoDescriptionInput.value;
+            const todoDueDate = new Date(dueDateInput.value);
+            const todoPriority = parseInt(priorityInput.value);
+            const newTodo = new TodoItem(todoName, todoDescription, todoDueDate, todoPriority);
+
+
+            project.addTodo(newTodo);
+            // if (project.addTodo(newTodo)) {
+            //     // Clear form inputs
+            //     todoNameInput.value = '';
+            //     todoDescriptionInput.value = '';
+            //     dueDateInput.value = '';
+            //     priorityInput.value = '';
+            // }
+        }
+
     });
     form.appendChild(submitButton);
 
