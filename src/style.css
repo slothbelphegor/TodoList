@@ -233,7 +233,7 @@ ul {
   grid-template-columns: 1fr 5fr 1fr;
   grid-template-rows: 1.5em 1em auto;
   align-items: center;
-  gap: 5px;
+  gap: 10px;
 }
 
 .todo-item-checkbox {
@@ -254,6 +254,8 @@ ul {
   gap: 0.5em;
 }
 
+
+
 .todo-item-description {
   grid-column: 2 / 3;
   grid-row: 3 / 4;
@@ -270,7 +272,7 @@ ul {
   margin: 0;
   margin-bottom: 0.5em;
   color: #333;
-  pointer-events: none;
+
   border-color: #dedede;
 }
 
@@ -324,6 +326,11 @@ ul {
   grid-row: 1 / 2;
   font-size: 1.1em;
   font-weight: 600;
+  border: none;
+}
+
+.todo-item-name:focus {
+  outline: none;
 }
 
 .btn-todo-remove,

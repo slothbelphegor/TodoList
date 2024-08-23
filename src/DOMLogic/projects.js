@@ -129,7 +129,6 @@ function newProjectFormDOM() {
 
 function removeProjectFormDOM(selectedProjectID) {
     Project.removeProject(selectedProjectID);
-    
 }
 
 

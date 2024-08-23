@@ -2,55 +2,69 @@ import TodoItem from "../logic/todos";
 import EditIcon from "../icons/pencil.svg";
 
 
-function todoInfoDetailsForm(todo) {
+function adjustTextareaHeight(textarea) {
+    textarea.style.height = 'auto'; // Reset height
+    textarea.style.height = textarea.scrollHeight + 'px'; // Set height to scrollHeight
+}
+
+// Show description of todo
+function displayDescription(todoItemDescriptionDOM, editingState) {
+    todoItemDescriptionDOM.style.display = todoItemDescriptionDOM.style.display === "none" ? "block" : "none";
+    adjustTextareaHeight(todoItemDescriptionDOM);
+    // Disable editing if not in editing mode
+    if (editingState != true)
+        todoItemDescriptionDOM.style.pointerEvents = "none";
+}
+
+function todoInfoDetailsForm(todo, todoItemDOM) {
     // Get form element
     const form = document.createElement('form');
 
     // Input field for task name
-    const todoNameInput = document.createElement('input');
-    todoNameInput.setAttribute('type', 'text');
-    todoNameInput.setAttribute('name', 'todoName');
-    todoNameInput.setAttribute('required', '');
-    todoNameInput.classList.add('todo-item-name');
-    todoNameInput.value = todo.title;
-    const todoNameInputLabel = document.createElement('label');
-    todoNameInputLabel.textContent = 'Task Name: ';
-    todoNameInputLabel.setAttribute('for', 'todoName');
-    form.appendChild(todoNameInputLabel);
-    form.appendChild(todoNameInput);
+    //const todoNameInput = document.createElement('input');
+    const todoNameInput = todoItemDOM.querySelector(".todo-item-name");
+    const todoNameInputNew = document.createElement('input');
+    todoNameInputNew.setAttribute('type', 'text');
+    todoNameInputNew.setAttribute('name', 'todoName');
+    todoNameInputNew.setAttribute('required', '');
+    todoNameInputNew.value = todo.title;
+    //todoNameInput.removeAttribute("readonly");
+    todoNameInputNew.classList.add('todo-item-name');
+    todoNameInput.replaceWith(todoNameInputNew);
+
+
+    //form.appendChild(todoNameInput);
 
     // Input field for task description
-    const todoDescriptionInput = document.createElement('textarea');
-    todoDescriptionInput.value = todo.description;
-    todoDescriptionInput.setAttribute('name', 'todoDescription');
-    const todoDescriptionInputLabel = document.createElement('label');
-    todoDescriptionInputLabel.textContent = 'Description: ';
-    todoDescriptionInputLabel.setAttribute('for', 'todoDescription');
-    form.appendChild(todoDescriptionInputLabel);
-    form.appendChild(todoDescriptionInput);
+    const todoDescriptionInput = todoItemDOM.querySelector(".todo-item-description");
+    todoDescriptionInput.style.display = 'block';
+    todoDescriptionInput.style.pointerEvents = 'auto';
+    adjustTextareaHeight(todoDescriptionInput);
+    todoDescriptionInput.addEventListener("input", () => {
+        adjustTextareaHeight(todoDescriptionInput);
+    });
+    todoDescriptionInput.classList.add("todo-item-description");
+
+
+
 
     // Priority input
-    // const priorityInput = document.createElement('input');
-    // priorityInput.setAttribute('type', 'number');
-    // priorityInput.setAttribute('min', '0');
-    // priorityInput.setAttribute('max', '3');
-    // priorityInput.value = todo.priority;
-    const priorityInput = document.createElement('select');
+    const priorityInput = document.createElement("select");
     const priorityOptions = [('0', "None"), ('1', "Needed"), ('2', "Important"), ('3', "Urgent")].map((priorityText, priorityValue) => {
         const option = document.createElement('option');
         option.textContent = priorityText;
         option.value = priorityValue;
         return option;
     });
-    priorityInput.append(...priorityOptions);
-    priorityInput.value = todo.priority;
+    // Hide the priority shown
+    const priorityDOM = todoItemDOM.querySelector(".todo-item-priority");
+    priorityDOM.style.display = 'none';
 
-    priorityInput.setAttribute('name', 'todoPriority');
-    const priorityInputLabel = document.createElement('label');
-    priorityInputLabel.textContent = 'Priority: ';
-    priorityInputLabel.setAttribute('for', 'todoPriority');
-    form.appendChild(priorityInputLabel);
-    form.appendChild(priorityInput);
+    // View the priority input
+    priorityInput.append(...priorityOptions);
+    priorityInput.classList.add("todo-item-priority");
+    priorityInput.value = todo.priority;
+    todoItemDOM.appendChild(priorityInput);
 
     // Convert Date object to datetime-local format
     const convertToDateTimeLocalString = (date) => {
@@ -60,6 +74,7 @@ function todoInfoDetailsForm(todo) {
         const hours = date.getHours().toString().padStart(2, "0");
         const minutes = date.getMinutes().toString().padStart(2, "0");
 
+
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     }
 
@@ -68,21 +83,44 @@ function todoInfoDetailsForm(todo) {
     dueDateInput.setAttribute('type', 'datetime-local');
     dueDateInput.value = convertToDateTimeLocalString(todo.dueDate);
     dueDateInput.setAttribute('name', 'todoDueDate');
-    const dueDateInputLabel = document.createElement('label');
-    dueDateInputLabel.textContent = 'Due Date: ';
-    dueDateInputLabel.setAttribute('for', 'todoDueDate');
-    form.appendChild(dueDateInputLabel);
-    form.appendChild(dueDateInput);
+
+    // Hide the due date info
+    const dueDateDOM = todoItemDOM.querySelector(".todo-item-due");
+    dueDateDOM.style.display = 'none';
+
+    // View the due date input
+    dueDateInput.classList.add('.todo-item-due');
+    todoItemDOM.appendChild(dueDateInput);
 
     // Submit button
     const submitButton = document.createElement('input');
     submitButton.setAttribute('type', 'submit');
     submitButton.setAttribute('value', 'Confirm');
     submitButton.addEventListener('click', function () {
-        todo.title = todoNameInput.value;
+        todo.title = todoNameInputNew.value;
+        todoNameInputNew.setAttribute('readonly', '');
+        
         todo.description = todoDescriptionInput.value;
+        todoDescriptionInput.style.pointerEvents = 'none';
         todo.dueDate = new Date(dueDateInput.value);
         todo.priority = parseInt(priorityInput.value);
+
+        // Enable listeners for todo name
+        const btnEditTodoDOM = todoItemDOM.querySelector('.btn-todo-edit');
+        const editingState = btnEditTodoDOM.classList.contains("editing");
+        todoNameInputNew.addEventListener('click', (event) => { displayDescription(todoDescriptionInput, editingState) });
+
+        // Remove priority input
+        priorityInput.remove();
+        // Enable priority view
+        priorityDOM.style.display = 'flex';
+
+        // Remove due date input
+        dueDateInput.remove();
+        // Enable due date view
+        dueDateDOM.style.display = 'flex';
+
+
     });
     form.appendChild(submitButton);
 
@@ -95,8 +133,10 @@ function todoInfo(todo) {
 
     // Item info
     // Name
-    let todoItemNameDOM = document.createElement("div");
-    todoItemNameDOM.textContent = todo.title;
+    let todoItemNameDOM = document.createElement("input");
+    todoItemNameDOM.setAttribute('readonly', '');
+    todoItemNameDOM.setAttribute('type', 'text');
+    todoItemNameDOM.value = todo.title;
     todoItemNameDOM.classList.add("todo-item-name");
 
 
@@ -133,7 +173,7 @@ function todoInfo(todo) {
         todoItemPriorityDOM.appendChild(todoItemPriorityTextDOM);
     }
     displayPriority(todo.priority);
-    
+
 
     // Due time
     let todoItemDueDOM = document.createElement("div");
@@ -161,10 +201,7 @@ function todoInfo(todo) {
     });
 
     // Description
-    function adjustTextareaHeight(textarea) {
-        textarea.style.height = 'auto'; // Reset height
-        textarea.style.height = textarea.scrollHeight + 'px'; // Set height to scrollHeight
-      }
+
     let todoItemDescriptionDOM = document.createElement("textarea");
     todoItemDescriptionDOM.textContent = todo.description;
     adjustTextareaHeight(todoItemDescriptionDOM);
@@ -183,11 +220,8 @@ function todoInfo(todo) {
     todoItemDOM.appendChild(todoItemDueDOM);
     todoItemDOM.appendChild(todoItemDescriptionDOM);
 
-    // Show description on clicking the todo item name
-    todoItemNameDOM.addEventListener("click", () => {
-        todoItemDescriptionDOM.style.display = todoItemDescriptionDOM.style.display === "none"? "block" : "none";
-        adjustTextareaHeight(todoItemDescriptionDOM);
-    });
+
+
 
     // Edit button
     const todoItemEditBtn = document.createElement("img");
@@ -198,17 +232,24 @@ function todoInfo(todo) {
     // Edit todo item on click on edit button
     todoItemEditBtn.addEventListener("click", () => {
         if (todoItemEditBtn.classList.contains("editing") == false) {
-            const todoInfoForm = todoInfoDetailsForm(todo);
+            const todoInfoForm = todoInfoDetailsForm(todo, todoItemDOM);
             // Toggle edit mode - prevent duplicate forms
             todoItemEditBtn.classList.toggle("editing");
             todoInfoForm.addEventListener("submit", (e) => {
                 todoItemDOM.removeChild(todoInfoForm);
                 // Renew the item details on submit
                 todoItemNameDOM.textContent = todo.title;
+                todoItemNameDOM.setAttribute("readonly", '');
+                // Show description on clicking the todo item name
+                const editingState = todoItemEditBtn.classList.contains("editing");
+                todoItemNameDOM.addEventListener('click', (event) => { displayDescription(todoItemDescriptionDOM, editingState) });
+
                 todoItemPriorityDOM.innerHTML = "";
                 displayPriority(todo.priority);
+
                 todoItemDueDateDOM.textContent = `${todo.dueDate.toISOString().split('T')[0]}`;
                 todoItemDueTimeDOM.textContent = todo.dueDate.toLocaleTimeString();
+
                 todoItemDescriptionDOM.textContent = todo.description;
                 // Disable edit mode
                 todoItemEditBtn.classList.toggle("editing");
@@ -217,6 +258,11 @@ function todoInfo(todo) {
         }
 
     });
+
+    // Show description on clicking the todo item name
+    const editingState = todoItemEditBtn.classList.contains("editing");
+    todoItemNameDOM.addEventListener('click', (event) => { displayDescription(todoItemDescriptionDOM, editingState) });
+
     return todoItemDOM;
 }
 
