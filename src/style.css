@@ -364,3 +364,25 @@ ul {
   /*SVG coloring using filter, converted from #007bff */
   filter: invert(49%) sepia(99%) saturate(5446%) hue-rotate(200deg) brightness(102%) contrast(106%);
 }
+
+.new-todo-form {
+  padding: 1rem;
+  position: fixed;
+  background-color: #b1c3e6;
+  color: #fff;
+  top: 25vh;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow-y: auto;
+  /* display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: auto auto; */
+  display: flex;
+  flex-direction: column ;
+  gap: 7px;
+  width: 25em;
+  border-radius: 5px;
+  border: 2px solid black;
+  color: black;
+}
+

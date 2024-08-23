@@ -295,7 +295,7 @@ function todoInfo(todo) {
 function newTodoForm(project) {
     // Get form element
     const form = document.createElement('form');
-
+    form.classList.add('new-todo-form');
 
     // Input field for task name
     const todoNameInput = document.createElement('input');
@@ -368,6 +368,19 @@ function newTodoForm(project) {
         }
     });
     form.appendChild(submitButton);
+
+    // Cancel button
+    const cancelButton = document.createElement('button');
+    cancelButton.type = 'cancel';
+    cancelButton.textContent = 'Cancel';
+    cancelButton.addEventListener('click', function () {
+        todoNameInput.value = '';
+        todoDescriptionInput.value = '';
+        dueDateInput.value = '';
+        priorityInput.value = '';
+        form.remove();
+    });
+    form.appendChild(cancelButton);
 
     return form;
 }
