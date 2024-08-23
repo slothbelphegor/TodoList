@@ -33,8 +33,6 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
     todoNameInput.replaceWith(todoNameInputNew);
 
 
-    //form.appendChild(todoNameInput);
-
     // Input field for task description
     const todoDescriptionInput = todoItemDOM.querySelector(".todo-item-description");
     todoDescriptionInput.style.display = 'block';
@@ -44,8 +42,6 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
         adjustTextareaHeight(todoDescriptionInput);
     });
     todoDescriptionInput.classList.add("todo-item-description");
-
-
 
 
     // Priority input
@@ -119,11 +115,39 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
         dueDateInput.remove();
         // Enable due date view
         dueDateDOM.style.display = 'flex';
-
-
     });
     form.appendChild(submitButton);
 
+    // Cancel button
+    const cancelButton = document.createElement('input');
+    cancelButton.setAttribute('type', 'submit');
+    cancelButton.setAttribute('value', 'Cancel');
+    cancelButton.addEventListener('click', function () {
+        todoNameInputNew.setAttribute('readonly', '');
+        todoNameInputNew.value = todo.title;
+        todoDescriptionInput.style.pointerEvents = 'none';
+        todoDescriptionInput.value = todo.description;
+
+        // Enable listeners for todo name
+        const btnEditTodoDOM = todoItemDOM.querySelector('.btn-todo-edit');
+        const editingState = btnEditTodoDOM.classList.contains("editing");
+        todoNameInputNew.addEventListener('click', (event) => { displayDescription(todoDescriptionInput, editingState) });
+        // Remove priority input
+        priorityInput.remove();
+        // Enable priority view
+        priorityDOM.style.display = 'flex';
+
+        // Remove due date input
+        dueDateInput.remove();
+        // Enable due date view
+        dueDateDOM.style.display = 'flex';
+        // Hide form
+        form.remove();
+
+        // Disable edit mode
+        btnEditTodoDOM.classList.toggle("editing");
+    });
+    form.appendChild(cancelButton);
     return form;
 
 }
