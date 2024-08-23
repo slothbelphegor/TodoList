@@ -1,5 +1,6 @@
 import TodoItem from "../logic/todos";
 import EditIcon from "../icons/pencil.svg";
+import { formatDistanceToNow, format } from "date-fns";
 
 
 function adjustTextareaHeight(textarea) {
@@ -205,15 +206,33 @@ function todoInfo(todo) {
 
     // Date
     let todoItemDueDateDOM = document.createElement("div");
-    todoItemDueDateDOM.textContent = `${todo.dueDate.toISOString().split('T')[0]}`;
+    todoItemDueDateDOM.textContent = format(todo.dueDate, 'PPPP');
     todoItemDueDateDOM.classList.add("todo-item-due-date");
+
+
     // Time
     let todoItemDueTimeDOM = document.createElement("div");
-    todoItemDueTimeDOM.textContent = todo.dueDate.toLocaleTimeString();
+    todoItemDueTimeDOM.textContent = format(todo.dueDate, "p");
     todoItemDueTimeDOM.classList.add("todo-item-due-time");
 
+    // Some extra info for the deadline
+    function dueDateExtraInfo(todoItemDueDateDOM, todoItemDueTimeDOM) {
+        const todayDateString = format(new Date(), "PPPP")
+        const todoItemDueDateExtraText = formatDistanceToNow(todo.dueDate, { addSuffix: true });
+        if (todayDateString === todoItemDueDateDOM.textContent) {
+            // todoItemDueDateDOM.textContent = "Today";
+            // todoItemDueTimeDOM.textContent += ` (${todoItemDueDateExtraText})`;
+            todoItemDueDateDOM.style.display = "none";
+            todoItemDueTimeDOM.textContent = `Today, ${todoItemDueTimeDOM.textContent} (${todoItemDueDateExtraText})`;
+        }
+        else {
+            todoItemDueDateDOM.textContent += ` (${todoItemDueDateExtraText})`;
+        }
+    }
+    dueDateExtraInfo(todoItemDueDateDOM, todoItemDueTimeDOM);
     todoItemDueDOM.appendChild(todoItemDueDateDOM);
     todoItemDueDOM.appendChild(todoItemDueTimeDOM);
+
 
     // Checkbox
     const todoItemCheckboxDOM = document.createElement("input");
@@ -272,7 +291,9 @@ function todoInfo(todo) {
                 displayPriority(todo.priority);
 
                 todoItemDueDateDOM.textContent = `${todo.dueDate.toISOString().split('T')[0]}`;
+                todoItemDueDateDOM.textContent = format(todo.dueDate, 'PPPP');
                 todoItemDueTimeDOM.textContent = todo.dueDate.toLocaleTimeString();
+                dueDateExtraInfo(todoItemDueDateDOM, todoItemDueTimeDOM);
 
                 todoItemDescriptionDOM.textContent = todo.description;
                 // Disable edit mode

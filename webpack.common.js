@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const supportedLocales = ["en-US", "vi"];
 
 module.exports = {
   entry: {
@@ -9,6 +10,10 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'Todo List',
     }),
+    new webpack.ContextReplacementPlugin(
+      /^date-fns[/\\]locale$/,
+      new RegExp(`\\.[/\\\\](${supportedLocales.join('|')})[/\\\\]index\\.js$`)
+    )
   ],
   output: {
     filename: '[name].bundle.js',
