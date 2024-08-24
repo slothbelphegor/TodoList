@@ -95,7 +95,7 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
 
     // Priority input
     const priorityInput = document.createElement("select");
-    const priorityOptions = [('0', "None"), ('1', "Needed"), ('2', "Important"), ('3', "Urgent")].map((priorityText, priorityValue) => {
+    const priorityOptions = [('0', "None"), ('1', "Necessary"), ('2', "Important"), ('3', "Urgent")].map((priorityText, priorityValue) => {
         const option = document.createElement('option');
         option.textContent = priorityText;
         option.value = priorityValue;
@@ -143,11 +143,19 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
 
         todo.title = todoNameInputNew.value;
         todoNameInputNew.setAttribute('readonly', '');
+        
 
         todo.description = todoDescriptionInput.value;
         todoDescriptionInput.style.pointerEvents = 'none';
         todo.dueDate = new Date(dueDateInput.value);
         todo.priority = parseInt(priorityInput.value);
+
+        // Check if task is overdue
+        if (todo.dueDate < new Date()) {
+            todoNameInputNew.classList.add("todo-item-name-overdue");
+        } else {
+            todoNameInputNew.classList.remove("todo-item-name-overdue");
+        }
 
         // Enable listeners for todo name
         const btnEditTodoDOM = todoItemDOM.querySelector('.btn-todo-edit');
@@ -224,6 +232,13 @@ function todoInfo(todo) {
     todoItemNameDOM.value = todo.title;
     todoItemNameDOM.classList.add("todo-item-name");
 
+    // Check if task is overdue
+    if (todo.dueDate < new Date()) {
+        todoItemNameDOM.classList.add("todo-item-name-overdue");
+    } else {
+        todoItemNameDOM.classList.remove("todo-item-name-overdue");
+    }
+
 
     // Priority
     let todoItemPriorityDOM = document.createElement("div");
@@ -237,12 +252,11 @@ function todoInfo(todo) {
 
         switch (priority) {
             case 0:
-                todoItemPriorityIconDOM.classList.add("priority-none");
-                todoItemPriorityTextDOM.textContent = "None";
+                todoItemPriorityTextDOM.textContent = "";
                 break;
             case 1:
                 todoItemPriorityIconDOM.classList.add("priority-needed");
-                todoItemPriorityTextDOM.textContent = "Needed";
+                todoItemPriorityTextDOM.textContent = "Necessary";
                 break;
             case 2:
                 todoItemPriorityIconDOM.classList.add("priority-important");
@@ -379,7 +393,7 @@ function newTodoForm(project) {
 
     // Priority input
     const priorityInput = document.createElement('select');
-    const priorityOptions = [('0', "None"), ('1', "Needed"), ('2', "Important"), ('3', "Urgent")].map((priorityText, priorityValue) => {
+    const priorityOptions = [('0', "None"), ('1', "Necessary"), ('2', "Important"), ('3', "Urgent")].map((priorityText, priorityValue) => {
         const option = document.createElement('option');
         option.textContent = priorityText;
         option.value = priorityValue;

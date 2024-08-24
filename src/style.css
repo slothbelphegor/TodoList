@@ -329,6 +329,12 @@ ul {
   border: none;
 }
 
+.todo-item-name-overdue {
+  color: #636363;
+  font-style: italic;
+  text-decoration: line-through;
+}
+
 .todo-item-name:focus {
   outline: none;
 }
