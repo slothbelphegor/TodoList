@@ -8,6 +8,22 @@ function adjustTextareaHeight(textarea) {
     textarea.style.height = textarea.scrollHeight + 'px'; // Set height to scrollHeight
 }
 
+// Convert Date object to datetime-local format
+const convertToDateTimeLocalString = (date) => {
+    if (date != null) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const day = date.getDate().toString().padStart(2, "0");
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+    return '';
+
+}
+
+
+
 // Show description of todo
 function displayDescription(todoItemDescriptionDOM, editingState) {
     todoItemDescriptionDOM.style.display = todoItemDescriptionDOM.style.display === "none" ? "block" : "none";
@@ -44,27 +60,37 @@ function handleTodoNameInputClick(todoDescriptionInput, editingState, dueDateDOM
 
 function displayDueDateDetails(todoItemDueDOM, isInDetailsMode, dueDate) {
     if (isInDetailsMode) {
-        // Due date is now splitted into two parts, date and time
-        todoItemDueDOM.textContent = "";
-        // Date
-        let todoItemDueDateDOM = document.createElement("div");
-        todoItemDueDateDOM.textContent = format(dueDate, 'PPPP');
-        todoItemDueDateDOM.classList.add("todo-item-due-date");
+        if (dueDate == null) {
+            todoItemDueDOM.innerHTML = '';
+            todoItemDueDOM.textContent = "No due date specified";
 
-        // Time
-        let todoItemDueTimeDOM = document.createElement("div");
-        todoItemDueTimeDOM.textContent = format(dueDate, "p");
-        todoItemDueTimeDOM.classList.add("todo-item-due-time");
+        }
+        else {
+            // Due date is now splitted into two parts, date and time
+            todoItemDueDOM.textContent = "";
+            // Date
+            let todoItemDueDateDOM = document.createElement("div");
+            todoItemDueDateDOM.textContent = format(dueDate, 'PPPP');
+            todoItemDueDateDOM.classList.add("todo-item-due-date");
 
-        dueDateExtraInfo(todoItemDueDateDOM, todoItemDueTimeDOM, dueDate);
-        todoItemDueDOM.appendChild(todoItemDueDateDOM);
-        todoItemDueDOM.appendChild(todoItemDueTimeDOM);
-        
+            // Time
+            let todoItemDueTimeDOM = document.createElement("div");
+            todoItemDueTimeDOM.textContent = format(dueDate, "p");
+            todoItemDueTimeDOM.classList.add("todo-item-due-time");
+
+            dueDateExtraInfo(todoItemDueDateDOM, todoItemDueTimeDOM, dueDate);
+            todoItemDueDOM.appendChild(todoItemDueDateDOM);
+            todoItemDueDOM.appendChild(todoItemDueTimeDOM);
+        }
     }
-    else {
+    else if (dueDate !== null) {
         // Only show time remaining, not detailed information
         todoItemDueDOM.innerHTML = '';
         todoItemDueDOM.textContent = formatDistanceToNow(dueDate, { addSuffix: true });
+    }
+    else {
+        todoItemDueDOM.innerHTML = '';
+        todoItemDueDOM.textContent = '';
     }
 }
 
@@ -111,15 +137,7 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
     priorityInput.value = todo.priority;
     todoItemDOM.appendChild(priorityInput);
 
-    // Convert Date object to datetime-local format
-    const convertToDateTimeLocalString = (date) => {
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, "0");
-        const day = date.getDate().toString().padStart(2, "0");
-        const hours = date.getHours().toString().padStart(2, "0");
-        const minutes = date.getMinutes().toString().padStart(2, "0");
-        return `${year}-${month}-${day}T${hours}:${minutes}`;
-    }
+
 
     // Due date input
     const dueDateInput = document.createElement('input');
@@ -143,15 +161,16 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
 
         todo.title = todoNameInputNew.value;
         todoNameInputNew.setAttribute('readonly', '');
-        
+
 
         todo.description = todoDescriptionInput.value;
         todoDescriptionInput.style.pointerEvents = 'none';
-        todo.dueDate = new Date(dueDateInput.value);
+        todo.dueDate = dueDateInput.value != '' ? new Date(dueDateInput.value) : null;
+        console.log(todo.dueDate);
         todo.priority = parseInt(priorityInput.value);
 
         // Check if task is overdue
-        if (todo.dueDate < new Date()) {
+        if (todo.dueDate != null && todo.dueDate < new Date()) {
             todoNameInputNew.classList.add("todo-item-name-overdue");
         } else {
             todoNameInputNew.classList.remove("todo-item-name-overdue");
@@ -160,12 +179,13 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
         // Enable listeners for todo name
         const btnEditTodoDOM = todoItemDOM.querySelector('.btn-todo-edit');
         const editingState = btnEditTodoDOM.classList.contains("editing");
-        
-        todoNameInputNew.addEventListener('click', (event) => { 
-            handleTodoNameInputClick(todoDescriptionInput, editingState,dueDateDOM,todo.dueDate);
+
+        todoNameInputNew.addEventListener('click', (event) => {
+            handleTodoNameInputClick(todoDescriptionInput, editingState, dueDateDOM, todo.dueDate);
         });
 
         // Enable details due date mode
+
         dueDateDOM.classList.add("dueDateDetails");
         displayDueDateDetails(dueDateDOM, true, todo.dueDate);
         // Remove priority input
@@ -193,9 +213,9 @@ function todoInfoDetailsForm(todo, todoItemDOM) {
         // Enable listeners for todo name
         const btnEditTodoDOM = todoItemDOM.querySelector('.btn-todo-edit');
         const editingState = btnEditTodoDOM.classList.contains("editing");
-        
-        todoNameInputNew.addEventListener('click', (event) => { 
-            handleTodoNameInputClick(todoDescriptionInput, editingState,dueDateDOM,todo.dueDate);
+
+        todoNameInputNew.addEventListener('click', (event) => {
+            handleTodoNameInputClick(todoDescriptionInput, editingState, dueDateDOM, todo.dueDate);
         });
 
         // Enable details due date mode
@@ -233,7 +253,7 @@ function todoInfo(todo) {
     todoItemNameDOM.classList.add("todo-item-name");
 
     // Check if task is overdue
-    if (todo.dueDate < new Date()) {
+    if (todo.dueDate != null && todo.dueDate < new Date()) {
         todoItemNameDOM.classList.add("todo-item-name-overdue");
     } else {
         todoItemNameDOM.classList.remove("todo-item-name-overdue");
@@ -279,7 +299,7 @@ function todoInfo(todo) {
     // Due time
     let todoItemDueDOM = document.createElement("div");
     todoItemDueDOM.classList.add("todo-item-due");
-    todoItemDueDOM.textContent = formatDistanceToNow(todo.dueDate, { addSuffix: true });
+    todoItemDueDOM.textContent = todo.dueDate != null ? formatDistanceToNow(todo.dueDate, { addSuffix: true }) : "";
 
 
     // Checkbox
@@ -338,6 +358,7 @@ function todoInfo(todo) {
                 // Due date
                 displayDueDateDetails(todoItemDueDOM, todoItemDueDOM.classList.contains("dueDateDetails"), todo.dueDate);
 
+
                 // Priority
                 todoItemPriorityDOM.innerHTML = "";
                 displayPriority(todo.priority);
@@ -354,10 +375,10 @@ function todoInfo(todo) {
 
     // Show description on clicking the todo item name
     const editingState = todoItemEditBtn.classList.contains("editing");
-    todoItemNameDOM.addEventListener('click', (event) => { 
-        handleTodoNameInputClick(todoItemDescriptionDOM, editingState,todoItemDueDOM,todo.dueDate);
+    todoItemNameDOM.addEventListener('click', (event) => {
+        handleTodoNameInputClick(todoItemDescriptionDOM, editingState, todoItemDueDOM, todo.dueDate);
     });
-    
+
 
     return todoItemDOM;
 }
@@ -413,12 +434,11 @@ function newTodoForm(project) {
     dueDateInput.setAttribute('placeholder', 'Due date');
     dueDateInput.setAttribute('name', 'todoDueDate');
     // Set default value (e.g., current date and time)
-    const currentDate = new Date().toISOString().slice(0, 16);
-    dueDateInput.setAttribute('value', currentDate);
+    // const currentDate = convertToDateTimeLocalString(new Date());
+    // dueDateInput.setAttribute('value', currentDate);
     // Set minimum value (e.g., today's date and time)
-    const minDate = new Date().toISOString().slice(0, 16);
-    dueDateInput.setAttribute('min', minDate);
-    dueDateInput.setAttribute('required', true); // Adding the 'required' attribute for HTML5 form validation
+    // dueDateInput.setAttribute('min', currentDate);
+    //dueDateInput.setAttribute('required', true); // Adding the 'required' attribute for HTML5 form validation
     const dueDateInputLabel = document.createElement('label');
     dueDateInputLabel.textContent = 'Due Date: ';
     dueDateInputLabel.setAttribute('for', 'todoDueDate');
@@ -437,14 +457,14 @@ function newTodoForm(project) {
             alert('Task name is required');
             e.preventDefault();
         }
-        else if (!dueDateInput.value) {
-            alert('Due date is required');
-            e.preventDefault();
-        }
+        // else if (!dueDateInput.value) {
+        //     alert('Due date is required');
+        //     e.preventDefault();
+        // }
         else {
             const todoName = todoNameInput.value;
             const todoDescription = todoDescriptionInput.value;
-            const todoDueDate = new Date(dueDateInput.value);
+            const todoDueDate = dueDateInput.value != '' ? new Date(dueDateInput.value) : null;
             const todoPriority = parseInt(priorityInput.value);
             const newTodo = new TodoItem(todoName, todoDescription, todoDueDate, todoPriority);
             project.addTodo(newTodo);
